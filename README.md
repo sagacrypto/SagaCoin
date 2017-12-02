@@ -11,7 +11,7 @@ SagaCoin uses libsecp256k1,
 			  QT5 to compile
 
 
-Block Spacing: 90 Seconds
+Block Spacing: 120 Seconds
 Stake Minimum Age: 8 Hours
 
 Port: 48544
