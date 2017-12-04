@@ -53,8 +53,8 @@ public:
         pchMessageStart[2] = 0xb2;
         pchMessageStart[3] = 0xc4;
         vAlertPubKey = ParseHex("");
-        nDefaultPort = 48544;
-        nRPCPort = 48644;
+        nDefaultPort = 48744;
+        nRPCPort = 48844;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
@@ -65,19 +65,19 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
-        const char* pszTimestamp = "Genesis Sagacoin To The Moon sagacoin.net";
+        const char* pszTimestamp = "Genesis Sagacoin To The Moon sagacoin.net Sunday, December 3, 2017 12:00:00 AM";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
         vout[0].SetEmpty();
-        CTransaction txNew(1, 1512273600, vin, vout, 0);
+        CTransaction txNew(1, 1512259200, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1512273600;
+        genesis.nTime    = 1512259200;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact();
         genesis.nNonce   = 214187;                                        
 
@@ -85,8 +85,8 @@ public:
    		  //printf("genesis.GetHash = %s\n", genesis.GetHash().ToString().c_str());
         //printf("genesis.hashMerkleRoot = %s\n", genesis.hashMerkleRoot.ToString().c_str());
 
-        assert(hashGenesisBlock == uint256("0x4554d93a131f6af233ccd61870d84cf7e9fad9b2718ffc79300935f7a5730ebd"));
-        assert(genesis.hashMerkleRoot == uint256("0x41ca5094751dfec2b04bcc662ff760c2def8616e878e07a27a6544de0de75d15"));
+        assert(hashGenesisBlock == uint256("0xe523a92cbe17c3e13fbc1bf191e79138c9dfbe61199ede7870b4d5abd89c0e93"));
+        assert(genesis.hashMerkleRoot == uint256("0x13482ce8d40851efa8f6d175c5a886833f8d1f84fe8edfc66e53c20a4cf738cc"));
 
     
         vFixedSeeds.clear();

@@ -14,8 +14,8 @@ SagaCoin uses libsecp256k1,
 Block Spacing: 120 Seconds
 Stake Minimum Age: 8 Hours
 
-Port: 48544
-RPC Port: 48644
+Port: 48744
+RPC Port: 48844
 
 
 BUILD LINUX (see the [Wiki](https://github.com/sagacrypto/SagaCoin/wiki/Unix-Build) for dependencies)

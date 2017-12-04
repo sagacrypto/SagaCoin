@@ -1155,7 +1155,7 @@ void createConf()       //Automatic sagacoin.conf generation
 
     ofstream pConf;
     pConf.open(GetConfigFile().generic_string().c_str());
-    const char* nodes =  "\nrpcport=48644"
+    const char* nodes =  "\nrpcport=48844"
                          "\nrpcallowip=127.0.0.1"
                          "\ndaemon=1"
                          "\nserver=1"

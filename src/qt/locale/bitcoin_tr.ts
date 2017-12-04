@@ -2763,8 +2763,8 @@ for example: alertnotify=echo %%s | mail -s &quot;SagaCoin Alert&quot; admin@foo
     </message>
     <message>
         <location line="+6"/>
-        <source>Listen for connections on &lt;port&gt; (default: 48544 or testnet: 45544)</source>
-        <translation>&lt;port&gt; üzerinde bağlantıları dinle (varsayılan: 48544 veya testnet: 45544)</translation>
+        <source>Listen for connections on &lt;port&gt; (default: 48744 or testnet: 45544)</source>
+        <translation>&lt;port&gt; üzerinde bağlantıları dinle (varsayılan: 48744 veya testnet: 45544)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2813,8 +2813,8 @@ for example: alertnotify=echo %%s | mail -s &quot;SagaCoin Alert&quot; admin@foo
     </message>
     <message>
         <location line="+65"/>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 48644 or testnet: 45644)</source>
-        <translation>&lt;port&gt; üzerinde JSON-RPC bağlantılarını dinle (varsayılan: 48644 veya testnet: 45644)</translation>
+        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 48844 or testnet: 45644)</source>
+        <translation>&lt;port&gt; üzerinde JSON-RPC bağlantılarını dinle (varsayılan: 48844 veya testnet: 45644)</translation>
     </message>
     <message>
         <location line="-17"/>
