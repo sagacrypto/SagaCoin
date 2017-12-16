@@ -34,9 +34,9 @@ BUILD LINUX (see the [Wiki](https://github.com/sagacrypto/SagaCoin/wiki/Unix-Bui
 
 7) sudo make -f makefile.unix USE_UPNP=    # Headless SagaCoin
 
-8) strip SagaCoind
+8) strip sagacoind
 
-9) sudo cp SagaCoind /usr/local/bin
+9) sudo cp sagacoind /usr/local/bin
 
 
 
