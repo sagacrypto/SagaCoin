@@ -20,17 +20,24 @@ RPC Port: 48844
 
 BUILD LINUX (see the [Wiki](https://github.com/sagacrypto/SagaCoin/wiki/Unix-Build) for dependencies)
 -----------
-1) git clone https://github.com/sagacrypto/SagaCoin.git SagaCoin
+1) git clone https://github.com/sagacrypto/SagaCoin
 
 2) cd SagaCoin/src
 
-3) sudo make -f makefile.unix            # Headless SagaCoin
+3) mkdir obj/crypto
 
-(optional)
+4) chmod +x leveldb/build_detect_platform
 
-4) strip SagaCoind
+5) cd leveldb && make libleveldb.a libmemenv.a
 
-5) sudo cp SagaCoind /usr/local/bin
+6) cd ..
+
+7) sudo make -f makefile.unix USE_UPNP=    # Headless SagaCoin
+
+8) strip SagaCoind
+
+9) sudo cp SagaCoind /usr/local/bin
+
 
 
 
