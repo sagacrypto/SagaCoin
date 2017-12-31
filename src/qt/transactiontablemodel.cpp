@@ -420,12 +420,28 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
 
 QString TransactionTableModel::formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed) const
 {
-    QString str = BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), wtx->credit + wtx->debit);
+//    QString str = BitcoinUnits::format(walletModel->getOptionsModel()->getDisplayUnit(), wtx->credit + wtx->debit);
+    int64_t nNet = 0;
+    {
+        LOCK2(cs_main, wallet->cs_wallet);
+        std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(wtx->hash);
+        if(mi != wallet->mapWallet.end())
+        {
+            nNet = mi->second.GetCredit() - mi->second.GetDebit();
+        }
+    }
+    QString str = BitcoinUnits::formatWithUnit(walletModel->getOptionsModel()->getDisplayUnit(), nNet, true);
+
     if(showUnconfirmed)
     {
         if(!wtx->status.countsForBalance)
         {
-            str = QString("[") + str + QString("]");
+            if (nNet == 0)
+            {
+                str = QString("[pending]");
+            } else {
+                str = QString("[") + str + QString("]");
+            }
         }
     }
     return QString(str);
@@ -483,6 +499,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     if(!index.isValid())
         return QVariant();
     TransactionRecord *rec = static_cast<TransactionRecord*>(index.internalPointer());
+    int64_t nNet = 0;
 
     switch(role)
     {
@@ -558,7 +575,16 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
     case LabelRole:
         return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
     case AmountRole:
-        return rec->credit + rec->debit;
+//        return rec->credit + rec->debit;
+        {
+            LOCK2(cs_main, wallet->cs_wallet);
+            std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
+            if(mi != wallet->mapWallet.end())
+            {
+                nNet = mi->second.GetCredit() + mi->second.GetDebit();
+            }
+        }
+        return QVariant((qint64)nNet);
     case TxIDRole:
         return rec->getTxID();
     case ConfirmedRole:

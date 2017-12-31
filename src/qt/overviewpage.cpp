@@ -76,7 +76,12 @@ public:
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true);
         if(!confirmed)
         {
-            amountText = QString("[") + amountText + QString("]");
+            if (amount == 0)
+            {
+                amountText = QString("[pending]");
+            } else {
+                amountText = QString("[") + amountText + QString("]");
+            }
         }
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 

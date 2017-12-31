@@ -15,10 +15,10 @@
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The SagaCoin developers</source>
+Copyright © 2017 The SagaCoin developers</source>
         <translation>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The SagaCoin developers</translation>
+Copyright © 2017 The SagaCoin developers</translation>
     </message>
     <message>
         <location line="+15"/>
