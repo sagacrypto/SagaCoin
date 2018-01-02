@@ -581,7 +581,7 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             std::map<uint256, CWalletTx>::iterator mi = wallet->mapWallet.find(rec->hash);
             if(mi != wallet->mapWallet.end())
             {
-                nNet = mi->second.GetCredit() + mi->second.GetDebit();
+                nNet = mi->second.GetCredit() - mi->second.GetDebit();
             }
         }
         return QVariant((qint64)nNet);
