@@ -2308,8 +2308,17 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         return DoS(50, error("CheckBlock() : proof of work failed"));
 
     // Check timestamp
-    if (GetBlockTime() > FutureDriftV2(GetAdjustedTime()))
-        return error("CheckBlock() : block timestamp too far in the future");
+    LogPrintf("CheckBlock: h%d\n", pindexBest->nHeight);
+    if (pindexBest->nHeight > 128000)
+    {
+	    if (GetBlockTime() > FutureDriftV3(GetAdjustedTime()))
+	        return error("CheckBlock() : block timestamp too far in the future (v:1200)");
+    }
+    else
+    {
+	    if (GetBlockTime() > FutureDriftV2(GetAdjustedTime()))
+	        return error("CheckBlock() : block timestamp too far in the future");
+    }
 
     // First transaction must be coinbase, the rest must not be
     if (vtx.empty() || !vtx[0].IsCoinBase())

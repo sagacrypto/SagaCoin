@@ -1163,9 +1163,13 @@ void createConf()       //Automatic sagacoin.conf generation
                          "\naddnode=node1.sagacoin.net"
                          "\naddnode=node2.sagacoin.net"
                          "\naddnode=node3.sagacoin.net"
-                         "\naddnode=155.94.230.24"
-                         "\naddnode=155.94.230.163"
-                         "\naddnode=80.209.228.1";
+                         "\naddnode=node4.sagacoin.net"
+                         "\naddnode=node5.sagacoin.net"
+                         "\naddnode=node6.sagacoin.net"
+                         "\naddnode=199.15.252.90"
+                         "\naddnode=163.172.186.98"
+                         "\naddnode=204.44.91.196"
+                         "\naddnode=51.15.83.148";
 
     pConf   << std::string("rpcuser=")
             +  randomStrGen(5)
