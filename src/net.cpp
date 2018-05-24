@@ -54,6 +54,7 @@ static CNode* pnodeSync = NULL;
 uint64_t nLocalHostNonce = 0;
 static std::vector<SOCKET> vhListenSocket;
 CAddrMan addrman;
+int nMaxConnections = DEFAULT_MAX_PEER_CONNECTIONS;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
@@ -384,6 +385,13 @@ CNode* ConnectNode(CAddress addrConnect, const char *pszDest, bool darkSendMaste
     if (pszDest ? ConnectSocketByName(addrConnect, hSocket, pszDest, Params().GetDefaultPort(), nConnectTimeout, &proxyConnectionFailed) :
                   ConnectSocket(addrConnect, hSocket, nConnectTimeout, &proxyConnectionFailed))
     {
+        if (!IsSelectableSocket(hSocket)) {
+            LogPrintf("Cannot create connection: non-selectable socket created (fd >= FD_SETSIZE ?)\n");
+            closesocket(hSocket);
+            hSocket = INVALID_SOCKET;
+            return NULL;
+        }
+
         addrman.Attempt(addrConnect);
 
         LogPrint("net", "connected %s\n", pszDest ? pszDest : addrConnect.ToString());
@@ -1525,6 +1533,12 @@ bool BindListenPort(const CService &addrBind, string& strError)
     if (hListenSocket == INVALID_SOCKET)
     {
         strError = strprintf("Error: Couldn't open socket for incoming connections (socket returned error %d)", WSAGetLastError());
+        LogPrintf("%s\n", strError);
+        return false;
+    }
+    if (!IsSelectableSocket(hListenSocket))
+    {
+        strError = "Error: Couldn't create a listenable socket for incoming connections";
         LogPrintf("%s\n", strError);
         return false;
     }

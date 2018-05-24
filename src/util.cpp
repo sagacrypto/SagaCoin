@@ -336,6 +336,30 @@ void ParseString(const string& str, char c, vector<string>& v)
 }
 
 
+/**
+ * this function tries to raise the file descriptor limit to the requested number.
+ * It returns the actual file descriptor limit (which may be more or less than nMinFD)
+ */
+int RaiseFileDescriptorLimit(int nMinFD) {
+#if defined(WIN32)
+    return 2048;
+#else
+    struct rlimit limitFD;
+    if (getrlimit(RLIMIT_NOFILE, &limitFD) != -1) {
+        if (limitFD.rlim_cur < (rlim_t)nMinFD) {
+            limitFD.rlim_cur = nMinFD;
+            if (limitFD.rlim_cur > limitFD.rlim_max)
+                limitFD.rlim_cur = limitFD.rlim_max;
+            setrlimit(RLIMIT_NOFILE, &limitFD);
+            getrlimit(RLIMIT_NOFILE, &limitFD);
+        }
+        return limitFD.rlim_cur;
+    }
+    return nMinFD; // getrlimit failed, assume it's fine
+#endif
+}
+
+
 string FormatMoney(int64_t n, bool fPlus)
 {
     // Note: not using straight sprintf here because we do NOT want
@@ -1166,8 +1190,8 @@ void createConf()       //Automatic sagacoin.conf generation
                          "\naddnode=node4.sagacoin.net"
                          "\naddnode=node5.sagacoin.net"
                          "\naddnode=node6.sagacoin.net"
-                         "\naddnode=199.15.252.90"
-                         "\naddnode=163.172.186.98"
+                         "\naddnode=107.155.113.15"
+                         "\naddnode=212.47.238.66"
                          "\naddnode=204.44.91.196"
                          "\naddnode=51.15.83.148";
 

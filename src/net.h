@@ -32,6 +32,8 @@ extern int nBestHeight;
 static const int PING_INTERVAL = 1 * 60;
 /** Time after which to disconnect, after waiting for a ping response (or inactivity). */
 static const int TIMEOUT_INTERVAL = 20 * 60;
+/** The maximum number of peer connections to maintain. */
+static const unsigned int DEFAULT_MAX_PEER_CONNECTIONS = 192;
 
 inline unsigned int ReceiveFloodSize() { return 2000*GetArg("-maxreceivebuffer", 5*1000); }
 inline unsigned int SendBufferSize() { return 5000*GetArg("-maxsendbuffer", 1*1000); }
@@ -104,6 +106,9 @@ extern bool fDiscover;
 extern uint64_t nLocalServices;
 extern uint64_t nLocalHostNonce;
 extern CAddrMan addrman;
+
+/** Maximum number of connections to simultaneously allow (aka connection slots) */
+extern int nMaxConnections;
 
 extern std::vector<CNode*> vNodes;
 extern CCriticalSection cs_vNodes;

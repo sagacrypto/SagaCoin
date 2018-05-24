@@ -11,6 +11,11 @@
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
+#ifdef FD_SETSIZE
+#undef FD_SETSIZE // prevent redefinition compiler warning
+#endif
+#define FD_SETSIZE 1024 // max number of fds in fd_set
+
 #include <winsock2.h>
 #include <mswsock.h>
 #include <ws2tcpip.h>
@@ -62,5 +67,12 @@ inline int myclosesocket(SOCKET& hSocket)
 }
 #define closesocket(s)      myclosesocket(s)
 
+bool static inline IsSelectableSocket(SOCKET s) {
+#ifdef WIN32
+    return true;
+#else
+    return (s < FD_SETSIZE);
+#endif
+}
 
 #endif

@@ -50,6 +50,15 @@ bool fOnlyTor = false;
 
 enum Checkpoints::CPMode CheckpointsMode;
 
+#ifdef WIN32
+// Win32 LevelDB doesn't use filedescriptors, and the ones used for
+// accessing block files don't count towards the fd_set size limit
+// anyway.
+#define MIN_CORE_FILEDESCRIPTORS 0
+#else
+#define MIN_CORE_FILEDESCRIPTORS 150
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Shutdown
@@ -394,6 +403,25 @@ bool AppInit2(boost::thread_group& threadGroup)
             LogPrintf("AppInit2 : parameter interaction: -bind set -> setting -listen=1\n");
     }
 
+    // Make sure enough file descriptors are available
+    int nFD = 0;
+    int nBind = std::max((int)mapArgs.count("-bind") + (int)mapArgs.count("-whitebind"), 1);
+    int nUserMaxConnections = GetArg("-maxconnections", 192);
+    if (nUserMaxConnections > FD_SETSIZE) {
+        nMaxConnections = std::max(nUserMaxConnections, 0);
+
+        // Trim requested connection counts, to fit into system limitations
+        nMaxConnections = std::max(std::min(nMaxConnections, (int)(FD_SETSIZE - nBind - MIN_CORE_FILEDESCRIPTORS)), 0);
+        nFD = RaiseFileDescriptorLimit(nMaxConnections + MIN_CORE_FILEDESCRIPTORS);
+        if (nFD < MIN_CORE_FILEDESCRIPTORS)
+            return InitError(_("Not enough file descriptors available."));
+        nMaxConnections = std::min(nFD - MIN_CORE_FILEDESCRIPTORS, nMaxConnections);
+
+        if (nMaxConnections < nUserMaxConnections)
+            InitWarning(strprintf(_("Reducing -maxconnections from %d to %d, because of system limitations."), nUserMaxConnections, nMaxConnections));
+    }
+
+    	
     if (mapArgs.count("-connect") && mapMultiArgs["-connect"].size() > 0) {
         // when only connecting to trusted nodes, do not seed via DNS, or listen by default
         if (SoftSetBoolArg("-dnsseed", false))
@@ -529,6 +557,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         LogPrintf("Startup time: %s\n", DateTimeStrFormat("%x %H:%M:%S", GetTime()));
     LogPrintf("Default data directory %s\n", GetDefaultDataDir().string());
     LogPrintf("Used data directory %s\n", strDataDir);
+    LogPrintf("Using at most %i connections (%i file descriptors available)\n", nMaxConnections, nFD);
     std::ostringstream strErrors;
 
     if (mapArgs.count("-masternodepaymentskey")) // masternode payments priv key
