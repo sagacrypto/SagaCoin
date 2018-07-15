@@ -91,9 +91,8 @@ public:
     
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("node1.sagacoin.net", "node1.sagacoin.net"));
-        vSeeds.push_back(CDNSSeedData("node2.sagacoin.net", "node2.sagacoin.net"));
-        vSeeds.push_back(CDNSSeedData("node3.sagacoin.net", "node3.sagacoin.net"));
+        vSeeds.push_back(CDNSSeedData("dnsseed1.sagacoin.net", "dnsseed1.sagacoin.net"));
+        vSeeds.push_back(CDNSSeedData("dnsseed2.sagacoin.net", "dnsseed2.sagacoin.net"));
 		
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,125);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,44);
