@@ -2308,7 +2308,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         return DoS(50, error("CheckBlock() : proof of work failed"));
 
     // Check timestamp
-    LogPrintf("CheckBlock: h%d\n", pindexBest->nHeight);
+//    LogPrintf("CheckBlock: h%d\n", pindexBest->nHeight);
     if (pindexBest->nHeight > 128000)
     {
 	    if (GetBlockTime() > FutureDriftV3(GetAdjustedTime()))
