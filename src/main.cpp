@@ -982,7 +982,7 @@ int GetInputAge(CTxIn& vin)
 	    return 0;
     }
     else
-	return 0; 
+	return 0;
 }
 
 int CTxIndex::GetDepthInMainChain() const
@@ -1131,7 +1131,7 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
     int64_t nSubsidy = 1 * COIN;
-    
+
     if(nHeight <= PREMINE_BLOCK)
     {
         nSubsidy = 2100000 * COIN; //  PREMINE 1 BLOCKS, 5%
@@ -1154,7 +1154,7 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
     }
 
 	LogPrint("creation", "GetProofOfWorkReward() : create=%s nSubsidy=%d\n", FormatMoney(nSubsidy), nSubsidy);
-	
+
     return nSubsidy + nFees;
 }
 
@@ -1238,7 +1238,7 @@ const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfSta
 int nTargetSpacing = 120; //120s
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
-{   
+{
     CBigNum bnTargetLimit = fProofOfStake ? GetProofOfStakeLimit(pindexLast->nHeight) : Params().ProofOfWorkLimit();
 
     if (pindexLast == NULL)
@@ -1318,7 +1318,7 @@ void Misbehaving(NodeId pnode, int howmuch)
             {
                 LogPrintf("Misbehaving: %s (%d -> %d) BAN THRESHOLD EXCEEDED\n", pn->addrName, pn->nMisbehavior-howmuch, pn->nMisbehavior);
                 //pn->fShouldBan = true;
-            } 
+            }
             else
                 LogPrintf("Misbehaving: %s (%d -> %d)\n", pn->addrName, pn->nMisbehavior-howmuch, pn->nMisbehavior);
 
@@ -1701,7 +1701,7 @@ void CBlock::RebuildAddressIndex(CTxDB& txdb)
     {
         uint256 hashTx = tx.GetHash();
 	// inputs
-	if(!tx.IsCoinBase()) 
+	if(!tx.IsCoinBase())
 	{
             MapPrevTx mapInputs;
 	    map<uint256, CTxIndex> mapQueuedChangesT;
@@ -1725,7 +1725,7 @@ void CBlock::RebuildAddressIndex(CTxDB& txdb)
 			}
 		    }
 	    }
- 	    
+
         }
 	// outputs
 	BOOST_FOREACH(const CTxOut &atxout, tx.vout) {
@@ -1764,9 +1764,9 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     int64_t nValueIn = 0;
     int64_t nValueOut = 0;
     int64_t nStakeReward = 0;
-    unsigned int nSigOps = 0;    
+    unsigned int nSigOps = 0;
     int nInputs = 0;
-    
+
     BOOST_FOREACH(CTransaction& tx, vtx)
     {
         uint256 hashTx = tx.GetHash();
@@ -1824,14 +1824,14 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             if (tx.IsCoinStake())
                 nStakeReward = nTxValueOut - nTxValueIn;
 
-	    
+
             if (!tx.ConnectInputs(txdb, mapInputs, mapQueuedChanges, posThisTx, pindex, true, false, flags))
                 return false;
         }
 
         mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
     }
-    
+
     if (IsProofOfWork())
     {
         int64_t nReward = GetProofOfWorkReward(pindex->nHeight, nFees);
@@ -1868,54 +1868,56 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
     {
         if (!txdb.UpdateTxIndex((*mi).first, (*mi).second))
             return error("ConnectBlock() : UpdateTxIndex failed");
-    }
+          }
 
+          if(GetBoolArg("-addrindex", false))
+              {
+                  // Write Address Index
+                  BOOST_FOREACH(CTransaction& tx, vtx)
+                  {
+                      uint256 hashTx = tx.GetHash();
+                      // inputs
+                      if(!tx.IsCoinBase())
+                      {
+                          MapPrevTx mapInputs;
+                          map<uint256, CTxIndex> mapQueuedChangesT;
+                          bool fInvalid;
+                          if (!tx.FetchInputs(txdb, mapQueuedChangesT, true, false, mapInputs, fInvalid))
+                              return false;
 
-    // Write Address Index
-    BOOST_FOREACH(CTransaction& tx, vtx)
-    {
-        uint256 hashTx = tx.GetHash();
-	// inputs
-	if(!tx.IsCoinBase()) 
-	{
-            MapPrevTx mapInputs;
-	    map<uint256, CTxIndex> mapQueuedChangesT;
-	    bool fInvalid;
-            if (!tx.FetchInputs(txdb, mapQueuedChangesT, true, false, mapInputs, fInvalid))
-                return false;
+                          MapPrevTx::const_iterator mi;
+                          for(MapPrevTx::const_iterator mi = mapInputs.begin(); mi != mapInputs.end(); ++mi)
+                          {
+                              BOOST_FOREACH(const CTxOut &atxout, (*mi).second.second.vout)
+                              {
+                                  std::vector<uint160> addrIds;
+                                  if(BuildAddrIndex(atxout.scriptPubKey, addrIds))
+                                  {
+                                      BOOST_FOREACH(uint160 addrId, addrIds)
+                                      {
+                                          if(!txdb.WriteAddrIndex(addrId, hashTx))
+                                              LogPrintf("ConnectBlock(): txins WriteAddrIndex failed addrId: %s txhash: %s\n", addrId.ToString().c_str(), hashTx.ToString().c_str());
+                                      }
+                                  }
+                              }
+                          }
+                      }
 
-	    MapPrevTx::const_iterator mi;
-	    for(MapPrevTx::const_iterator mi = mapInputs.begin(); mi != mapInputs.end(); ++mi)
-	    {
-		    BOOST_FOREACH(const CTxOut &atxout, (*mi).second.second.vout)
-		    {
-			std::vector<uint160> addrIds;
-			if(BuildAddrIndex(atxout.scriptPubKey, addrIds))
-			{
-                            BOOST_FOREACH(uint160 addrId, addrIds)
-		            {
-			        if(!txdb.WriteAddrIndex(addrId, hashTx))
-				    LogPrintf("ConnectBlock(): txins WriteAddrIndex failed addrId: %s txhash: %s\n", addrId.ToString().c_str(), hashTx.ToString().c_str());
-                            }
-			}
-		    }
-	    }
- 	    
-        }
-
-	// outputs
-	BOOST_FOREACH(const CTxOut &atxout, tx.vout) {
-	    std::vector<uint160> addrIds;
-            if(BuildAddrIndex(atxout.scriptPubKey, addrIds))
-	    {
-		BOOST_FOREACH(uint160 addrId, addrIds)
-		{
-		    if(!txdb.WriteAddrIndex(addrId, hashTx))
-		        LogPrintf("ConnectBlock(): txouts WriteAddrIndex failed addrId: %s txhash: %s\n", addrId.ToString().c_str(), hashTx.ToString().c_str());
-                }
-	    }
-	}
-    }
+                      // outputs
+                      BOOST_FOREACH(const CTxOut &atxout, tx.vout)
+                      {
+                          std::vector<uint160> addrIds;
+                          if(BuildAddrIndex(atxout.scriptPubKey, addrIds))
+                          {
+                              BOOST_FOREACH(uint160 addrId, addrIds)
+                              {
+                                  if(!txdb.WriteAddrIndex(addrId, hashTx))
+                                      LogPrintf("ConnectBlock(): txouts WriteAddrIndex failed addrId: %s txhash: %s\n", addrId.ToString().c_str(), hashTx.ToString().c_str());
+                              }
+                          }
+                      }
+                  }
+              }
 
     // Update block index on disk without changing it in memory.
     // The memory index structure will be changed after the db commits.
@@ -2182,7 +2184,7 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
 // ppcoin: total coin age spent in transaction, in the unit of coin-days.
 // Only those coins meeting minimum age requirement counts. As those
 // transactions not in main chain are not currently indexed so we
-// might not find out about their coin age. Older transactions are 
+// might not find out about their coin age. Older transactions are
 // guaranteed to be in main chain by sync-checkpoint. This rule is
 // introduced to help nodes establish a consistent view of the coin
 // age (trust score) of competing branches.
@@ -2348,7 +2350,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
 
 // ----------- instantX transaction scanning -----------
 
-   
+
         BOOST_FOREACH(const CTransaction& tx, vtx){
             if (!tx.IsCoinBase()){
                 //only reject blocks when it's based on complete consensus
@@ -2362,7 +2364,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                 }
             }
         }
-    
+
 
 
     // ----------- masternode payments -----------
@@ -2370,7 +2372,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     bool MasternodePayments = false;
 
     if(nTime > START_MASTERNODE_PAYMENTS) MasternodePayments = true;
-   
+
     if(MasternodePayments)
     {
         LOCK2(cs_main, mempool.cs);
